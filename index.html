@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>轉盤程式</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        canvas {
+            border-radius: 50%;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="wheelCanvas" width="500" height="500"></canvas>
+    <button onclick="spinWheel()">旋轉</button>
+
+    <script>
+        const canvas = document.getElementById("wheelCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let sectors = ["舊社", "松竹", "總站", "文心崇德", "文心中清", "文華高中"];
+        const numSectors = sectors.length;
+        const colors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#A133FF", "#FFD700"];
+
+        let angle = 0;
+        let spinning = false;
+        let spinVelocity = 0;
+
+        function drawWheel() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = canvas.width / 2;
+            const anglePerSector = (2 * Math.PI) / numSectors;
+
+            for (let i = 0; i < numSectors; i++) {
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, angle + i * anglePerSector, angle + (i + 1) * anglePerSector);
+                ctx.closePath();
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.fill();
+                ctx.stroke();
+
+                // 文字設定
+                ctx.fillStyle = "black";
+                ctx.font = "20px Arial";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+
+                const textAngle = angle + (i + 0.5) * anglePerSector;
+                const textX = centerX + Math.cos(textAngle) * (radius * 0.7);
+                const textY = centerY + Math.sin(textAngle) * (radius * 0.7);
+                ctx.save();
+                ctx.translate(textX, textY);
+                ctx.rotate(textAngle);
+                ctx.fillText(sectors[i], 0, 0);
+                ctx.restore();
+            }
+
+            // **指針改為 3 點鐘方向**
+            ctx.fillStyle = "red";
+            ctx.beginPath();
+            ctx.moveTo(centerX + radius - 30, centerY);
+            ctx.lineTo(centerX + radius -0, centerY -15);
+            ctx.lineTo(centerX + radius -0, centerY +15);
+            ctx.fill();
+        }
+
+        function spinWheel() {
+            if (spinning) return;
+            spinning = true;
+            spinVelocity = Math.random() * 0.2 + 0.5; // 隨機初始速度
+            let friction = 0.98; // 摩擦力減慢旋轉
+
+            function animateSpin() {
+                if (spinVelocity > 0.002) {
+                    spinVelocity *= friction;
+                    angle += spinVelocity;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    drawWheel();
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    spinning = false;
+                    spinVelocity = 0;
+
+                    // **修正選中結果的計算（以 3 點鐘方向為基準）**
+                    angle = angle % (2 * Math.PI);
+                    let adjustedAngle = (2 * Math.PI - angle) % (2 * Math.PI); // 讓角度從 3 點鐘方向開始
+                    let winningIndex = Math.floor(adjustedAngle / ((2 * Math.PI) / numSectors)) % numSectors;
+
+                    alert("請前往 " + sectors[winningIndex]);
+                }
+            }
+
+            animateSpin();
+        }
+
+        drawWheel();
+    </script>
+</body>
+</html>
