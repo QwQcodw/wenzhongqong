@@ -27,14 +27,14 @@
     </style>
 </head>
 <body>
-    <canvas id="wheelCanvas" width="500" height="500"></canvas>
+    <canvas id="wheelCanvas" width="350" height="350"></canvas>
     <button onclick="spinWheel()">旋轉</button>
 
     <script>
         const canvas = document.getElementById("wheelCanvas");
         const ctx = canvas.getContext("2d");
 
-        let sectors = ["舊社", "松竹", "總站", "文心崇德", "文心中清", "文華高中"];
+        let sectors = ["文心森林公園", "水安宮", "市政府", "文心櫻花", "文華高中"];
         const numSectors = sectors.length;
         const colors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#A133FF", "#FFD700"];
 
